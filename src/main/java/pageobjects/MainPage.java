@@ -36,6 +36,15 @@ public class MainPage {
         driver.findElement(question1).click();
     }
 
+    public void clickQuestion(int index) {
+        By question = By.id("accordion__heading-" + index);
+
+        ((JavascriptExecutor) driver)
+                .executeScript("document.getElementById('accordion__heading-" + index + "').scrollIntoView();");
+
+        driver.findElement(question).click();
+    }
+
     public String getAnswer1() {
         return driver.findElement(answer1).getText();
     }

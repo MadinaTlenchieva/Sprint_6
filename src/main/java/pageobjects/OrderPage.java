@@ -5,7 +5,6 @@ import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 
 import java.time.Duration;
-import java.util.List;
 
 public class OrderPage {
 
@@ -34,21 +33,14 @@ public class OrderPage {
         // Выбор станции метро
         WebElement metroInput = wait.until(ExpectedConditions.elementToBeClickable(
                 By.xpath("//input[@placeholder='* Станция метро']")));
+
         metroInput.click();
+        metroInput.sendKeys(metroStation);
 
-        // Ждём появления всех опций метро
-        wait.until(ExpectedConditions.visibilityOfElementLocated(
-                By.xpath("//div[contains(@class,'select-search__row')]")));
+        WebElement station = wait.until(ExpectedConditions.elementToBeClickable(
+                By.xpath("//div[@class='select-search__row']/span[text()='" + metroStation + "']")));
 
-        List<WebElement> stations = driver.findElements(
-                By.xpath("//div[contains(@class,'select-search__row')]"));
-
-        for (WebElement station : stations) {
-            if (station.getText().equalsIgnoreCase(metroStation)) {
-                ((JavascriptExecutor) driver).executeScript("arguments[0].click();", station);
-                break;
-            }
-        }
+        station.click();
 
         driver.findElement(By.xpath("//input[@placeholder='* Телефон: на него позвонит курьер']"))
                 .sendKeys(phone);
@@ -68,10 +60,11 @@ public class OrderPage {
 
         // выбор срока аренды
         WebElement rentDropdown = wait.until(ExpectedConditions.elementToBeClickable(
-                By.xpath("//div[contains(@class, 'Dropdown-control')]")));
+                By.xpath("//div[contains(@class,'Dropdown-control')]")));
         rentDropdown.click();
+
         wait.until(ExpectedConditions.elementToBeClickable(
-                        By.xpath(String.format("//div[@class='Dropdown-option' and text()='%s']", rentTime))))
+                        By.xpath("//div[@class='Dropdown-option' and text()='" + rentTime + "']")))
                 .click();
 
         // выбор цвета самоката
@@ -94,15 +87,21 @@ public class OrderPage {
 
     // Методы для FAQ
     public void clickAccordionItem(String question) {
-        WebElement questionDiv = driver.findElement(By.xpath("//div[contains(text(),'" + question + "')]"));
-        ((JavascriptExecutor) driver).executeScript("arguments[0].scrollIntoView(true);", questionDiv);
-        ((JavascriptExecutor) driver).executeScript("arguments[0].click();", questionDiv);
+        WebElement questionDiv = driver.findElement(
+                By.xpath("//div[contains(text(),'" + question + "')]"));
+
+        ((JavascriptExecutor) driver).executeScript(
+                "arguments[0].scrollIntoView(true);", questionDiv);
+
+        ((JavascriptExecutor) driver).executeScript(
+                "arguments[0].click();", questionDiv);
     }
 
     public boolean isAnswerVisible(String answerText) {
         try {
-            WebElement answerDiv = wait.until(ExpectedConditions.visibilityOfElementLocated(
-                    By.xpath("//div[contains(text(),'" + answerText + "')]")));
+            WebElement answerDiv = wait.until(
+                    ExpectedConditions.visibilityOfElementLocated(
+                            By.xpath("//div[contains(text(),'" + answerText + "')]")));
             return answerDiv.isDisplayed();
         } catch (TimeoutException e) {
             return false;

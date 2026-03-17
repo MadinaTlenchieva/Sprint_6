@@ -30,22 +30,30 @@ public class OrderPage {
         driver.findElement(By.xpath("//input[@placeholder='* Адрес: куда привезти заказ']"))
                 .sendKeys(address);
 
-        // Выбор станции метро
+        // ====== ВЫБОР СТАНЦИИ МЕТРО (исправлено) ======
         WebElement metroInput = wait.until(ExpectedConditions.elementToBeClickable(
                 By.xpath("//input[@placeholder='* Станция метро']")));
 
         metroInput.click();
         metroInput.sendKeys(metroStation);
 
-        WebElement station = wait.until(ExpectedConditions.elementToBeClickable(
-                By.xpath("//div[@class='select-search__row']/span[text()='" + metroStation + "']")));
+        // ждём появления выпадающего списка
+        wait.until(ExpectedConditions.visibilityOfElementLocated(
+                By.xpath("//div[contains(@class,'select-search__select')]")));
 
-        station.click();
+        // более гибкий локатор
+        WebElement station = wait.until(ExpectedConditions.elementToBeClickable(
+                By.xpath("//div[contains(@class,'select-search__row')]//span[contains(text(),'" + metroStation + "')]")));
+
+        // кликаем через JS (устраняет проблемы с перекрытием)
+        ((JavascriptExecutor) driver).executeScript("arguments[0].click();", station);
+        // ==============================================
 
         driver.findElement(By.xpath("//input[@placeholder='* Телефон: на него позвонит курьер']"))
                 .sendKeys(phone);
 
-        driver.findElement(By.xpath("//button[text()='Далее']"))
+        wait.until(ExpectedConditions.elementToBeClickable(
+                        By.xpath("//button[text()='Далее']")))
                 .click();
     }
 

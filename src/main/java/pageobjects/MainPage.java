@@ -32,10 +32,6 @@ public class MainPage {
                 .executeScript("document.getElementById('accordion__heading-0').scrollIntoView();");
     }
 
-    public void clickQuestion1() {
-        driver.findElement(question1).click();
-    }
-
     public void clickQuestion(int index) {
         By question = By.id("accordion__heading-" + index);
 
@@ -45,8 +41,9 @@ public class MainPage {
         driver.findElement(question).click();
     }
 
-    public String getAnswer1() {
-        return driver.findElement(answer1).getText();
+    public String getAnswer(int index) {
+        By answer = By.id("accordion__panel-" + index);
+        return driver.findElement(answer).getText();
     }
 
     public void clickOrderTop() {

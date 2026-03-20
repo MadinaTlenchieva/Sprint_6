@@ -39,10 +39,8 @@ public class ImportantQuestionsTest extends BaseTest {
                 ExpectedConditions.visibilityOfElementLocated(
                         By.id("accordion__panel-" + index)));
 
-        Assertions.assertTrue(answer.isDisplayed(), "Ответ на вопрос не отображается");
-
-        Assertions.assertEquals(expectedText, answer.getText().trim(),
-                "Текст ответа не соответствует ожидаемому");
+        Assertions.assertTrue(answer.isDisplayed());
+        Assertions.assertEquals(expectedText, answer.getText().trim());
     }
 
     static Stream<Arguments> faqData() {

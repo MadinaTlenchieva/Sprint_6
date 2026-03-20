@@ -2,75 +2,75 @@ package tests;
 
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.ValueSource;
-import org.openqa.selenium.*;
-import org.openqa.selenium.chrome.ChromeDriver;
-import org.openqa.selenium.support.ui.ExpectedConditions;
-import org.openqa.selenium.support.ui.WebDriverWait;
+import org.junit.jupiter.params.provider.MethodSource;
+import org.junit.jupiter.params.provider.Arguments;
+import pageobjects.MainPage;
 import pageobjects.OrderPage;
 
-import java.time.Duration;
+import java.util.stream.Stream;
 
-public class OrderScooterTest {
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
-    WebDriver driver;
-    OrderPage orderPage;
-    WebDriverWait wait;
+public class OrderScooterTest extends BaseTest {
+
+    private MainPage mainPage;
+    private OrderPage orderPage;
 
     @BeforeEach
     public void setUp() {
-        driver = new ChromeDriver();
-        driver.manage().window().maximize();
-        driver.get("https://qa-scooter.praktikum-services.ru/");
+        startDriver();
+        driver.get("https://qa-scooter.praktikum-services.ru/order");
 
-        wait = new WebDriverWait(driver, Duration.ofSeconds(20));
+        mainPage = new MainPage(driver);
         orderPage = new OrderPage(driver);
+
+        // Принять куки
+        mainPage.acceptCookies();
     }
 
     @ParameterizedTest
-    @ValueSource(strings = {"top", "bottom"})
-    public void createOrder(String buttonPosition) {
+    @MethodSource("orderData")
+    public void createOrder(String buttonPosition, String name, String surname,
+                            String address, String metro, String phone,
+                            String date, String rent, String color, String comment) {
 
+        // Клик по кнопке заказа (верх/низ)
         if (buttonPosition.equals("top")) {
-            wait.until(ExpectedConditions.elementToBeClickable(
-                    By.xpath("//button[text()='Заказать']"))).click();
+            mainPage.clickOrderTop();
         } else {
-            WebElement bottomButton = wait.until(ExpectedConditions.elementToBeClickable(
-                    By.xpath("(//button[text()='Заказать'])[2]")));
-
-            ((JavascriptExecutor) driver).executeScript(
-                    "arguments[0].scrollIntoView(true);", bottomButton);
-
-            bottomButton.click();
+            mainPage.clickOrderBottom();
         }
 
-        // Первая форма
-        orderPage.fillFirstForm(
-                "Иван",
-                "Иванов",
-                "Москва, ул. Тестовая, 1",
-                "Черкизовская",
-                "+79991234567"
-        );
+        // Заполнение форм
+        orderPage.fillFirstForm(name, surname, address, metro, phone);
+        orderPage.fillSecondForm(date, rent, color, comment);
 
-        // Вторая форма
-        orderPage.fillSecondForm(
-                "15.04.2026",
-                "двое суток",
-                "black",
-                "Тестовый комментарий"
-        );
+        // Клик "Заказать"
+        orderPage.clickOrderButton();
 
-        // Проверка попапа
-        WebElement popup = wait.until(ExpectedConditions.visibilityOfElementLocated(
-                By.xpath("//div[contains(text(),'Заказ оформлен')]")));
+        // ===== Проверка текста модалки "Хотите оформить заказ?" =====
+        String confirmText = orderPage.getConfirmModalText();
+        assertEquals("Хотите оформить заказ?", confirmText,
+                "Текст модального окна перед подтверждением заказа не соответствует ожидаемому");
 
-        Assertions.assertTrue(popup.isDisplayed(),
-                "Окно подтверждения заказа не отображается");
+        // Подтверждение "Да"
+        orderPage.clickConfirmYes();
+
+        // ===== Проверка финального успешного заказа =====
+        String successText = orderPage.getOrderSuccessText();
+        assertTrue(successText.contains("Заказ оформлен"),
+                "Нет подтверждения успешного заказа");
     }
 
-    @AfterEach
-    public void tearDown() {
-        driver.quit();
+    static Stream<Arguments> orderData() {
+        return Stream.of(
+                Arguments.of("top", "Иван", "Иванов", "Москва, ул. 1",
+                        "Черкизовская", "+79991111111",
+                        "15.04.2026", "сутки", "black", "тест 1"),
+                Arguments.of("bottom", "Петр", "Петров", "Москва, ул. 2",
+                        "Сокольники", "+79992222222",
+                        "16.04.2026", "двое суток", "grey", "тест 2")
+        );
     }
 }

@@ -16,6 +16,24 @@ public class OrderPage {
         this.wait = new WebDriverWait(driver, Duration.ofSeconds(20));
     }
 
+    // ===== ЛОКАТОРЫ =====
+
+    // Модальное окно
+    private final By MODAL = By.xpath("//div[contains(@class,'Order_Modal')]");
+
+    // Заголовок модалки
+    private final By MODAL_HEADER = By.xpath("//div[contains(@class,'Order_ModalHeader')]");
+
+    // Кнопка "Да"
+    private final By YES_BUTTON = By.xpath("//button[normalize-space()='Да']");
+
+    // Кнопка "Нет"
+    private final By NO_BUTTON = By.xpath("//button[normalize-space()='Нет']");
+
+    // Модалка успешного заказа
+    private final By SUCCESS_MODAL = By.xpath("//div[contains(@class,'Order_Overlay')]");
+
+
     // ===== Первая форма =====
     public void fillFirstForm(String name, String surname, String address,
                               String metroStation, String phone) {
@@ -41,8 +59,9 @@ public class OrderPage {
                 .sendKeys(phone);
 
         wait.until(ExpectedConditions.elementToBeClickable(
-                By.xpath("//button[text()='Далее']"))).click();
+                By.xpath("//button[normalize-space()='Далее']"))).click();
     }
+
 
     // ===== Вторая форма =====
     public void fillSecondForm(String date, String rentTime, String scooterColor,
@@ -58,7 +77,7 @@ public class OrderPage {
         rentDropdown.click();
 
         wait.until(ExpectedConditions.elementToBeClickable(
-                        By.xpath("//div[@class='Dropdown-option' and text()='" + rentTime + "']")))
+                        By.xpath("//div[contains(@class,'Dropdown-option') and text()='" + rentTime + "']")))
                 .click();
 
         if (scooterColor.equalsIgnoreCase("black")) {
@@ -71,31 +90,49 @@ public class OrderPage {
                 .sendKeys(comment);
     }
 
+
     // ===== КНОПКА "ЗАКАЗАТЬ" =====
     public void clickOrderButton() {
         WebElement orderBtn = wait.until(ExpectedConditions.elementToBeClickable(
-                By.xpath("(//button[text()='Заказать'])[last()]")));
+                By.xpath("(//button[contains(.,'Заказать')])[last()]")));
         orderBtn.click();
     }
 
-    // ===== ПОЛУЧИТЬ ТЕКСТ МОДАЛКИ "Хотите оформить заказ?" =====
+
+    // ===== ПОЛУЧИТЬ ТЕКСТ МОДАЛКИ =====
     public String getConfirmModalText() {
-        WebElement confirmModal = wait.until(ExpectedConditions.visibilityOfElementLocated(
-                By.className("Order_ModalHeader__3FDaJ")));
-        return confirmModal.getText();
+        wait.until(ExpectedConditions.visibilityOfElementLocated(MODAL));
+
+        String text = wait.until(ExpectedConditions.visibilityOfElementLocated(MODAL_HEADER))
+                .getText();
+
+        return text.replace("\n", "").trim();
     }
 
-    // ===== КНОПКА "ДА" =====
+
+    // ===== КЛИК "ДА" =====
     public void clickConfirmYes() {
-        WebElement yesBtn = wait.until(ExpectedConditions.elementToBeClickable(
-                By.xpath("//div[contains(@class,'Order_Modal')]//button[contains(@class,'Button_Button__ra12g') and text()='Да']")));
-        yesBtn.click();
+
+        driver.findElement(By.xpath("//button[normalize-space()='Да']")).click();
     }
 
-    // ===== ПОЛУЧИТЬ ТЕКСТ УСПЕШНОГО ЗАКАЗА =====
+
+    // ===== КЛИК "НЕТ" =====
+//    public void clickConfirmNo() {
+//        wait.until(ExpectedConditions.visibilityOfElementLocated(MODAL));
+//
+//        WebElement noBtn = wait.until(ExpectedConditions.elementToBeClickable(NO_BUTTON));
+//
+//        try {
+//            noBtn.click();
+//        } catch (Exception e) {
+//            ((JavascriptExecutor) driver).executeScript("arguments[0].click();", noBtn);
+//        }
+//    }
+
+
+    // ===== ТЕКСТ УСПЕШНОГО ЗАКАЗА =====
     public String getOrderSuccessText() {
-        WebElement successModal = wait.until(ExpectedConditions.visibilityOfElementLocated(
-                By.xpath("//div[contains(@class,'Order_Overlay__3KW-T')]")));
-        return successModal.getText();
+        return wait.until(ExpectedConditions.visibilityOfElementLocated(SUCCESS_MODAL)).getText();
     }
 }

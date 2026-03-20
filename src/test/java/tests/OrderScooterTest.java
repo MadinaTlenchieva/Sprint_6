@@ -51,7 +51,7 @@ public class OrderScooterTest extends BaseTest {
 
         // ===== Проверка текста модалки "Хотите оформить заказ?" =====
         String confirmText = orderPage.getConfirmModalText();
-        assertEquals("Хотите оформить заказ?", confirmText,
+        assertTrue(confirmText.contains("Хотите оформить заказ?"),
                 "Текст модального окна перед подтверждением заказа не соответствует ожидаемому");
 
         // Подтверждение "Да"

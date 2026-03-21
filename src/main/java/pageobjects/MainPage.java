@@ -1,58 +1,53 @@
 package pageobjects;
 
-import org.openqa.selenium.By;
-import org.openqa.selenium.JavascriptExecutor;
-import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.*;
+import org.openqa.selenium.support.ui.ExpectedConditions;
+import org.openqa.selenium.support.ui.WebDriverWait;
+
+import java.time.Duration;
 
 public class MainPage {
 
     private WebDriver driver;
+    private WebDriverWait wait;
 
     public MainPage(WebDriver driver) {
         this.driver = driver;
+        this.wait = new WebDriverWait(driver, Duration.ofSeconds(20));
     }
 
-    // Cookie кнопка
-    private By cookieButton = By.id("rcc-confirm-button");
-
-    // FAQ
-    private By question1 = By.id("accordion__heading-0");
-    private By answer1 = By.id("accordion__panel-0");
+    // Куки
+    private final By COOKIE_BUTTON = By.id("rcc-confirm-button");
 
     // Кнопки заказа
-    private By orderButtonTop = By.xpath("//button[text()='Заказать']");
-    private By orderButtonBottom = By.xpath("(//button[text()='Заказать'])[2]");
+    private final By ORDER_TOP = By.xpath("//div[contains(@class,'Header')]//button[text()='Заказать']");
+    private final By ORDER_BOTTOM = By.xpath("//div[contains(@class,'Home_FinishButton')]//button");
+
+    private final By FAQ_SECTION = By.id("accordion__heading-0");
 
     public void acceptCookies() {
-        driver.findElement(cookieButton).click();
+        wait.until(ExpectedConditions.elementToBeClickable(COOKIE_BUTTON)).click();
+    }
+
+    public void clickOrderTop() {
+        wait.until(ExpectedConditions.elementToBeClickable(ORDER_TOP)).click();
+    }
+
+    public void clickOrderBottom() {
+        WebElement element = wait.until(ExpectedConditions.presenceOfElementLocated(ORDER_BOTTOM));
+
+        ((JavascriptExecutor) driver).executeScript("arguments[0].scrollIntoView();", element);
+
+        wait.until(ExpectedConditions.elementToBeClickable(element)).click();
     }
 
     public void scrollToFAQ() {
-        ((JavascriptExecutor) driver)
-                .executeScript("document.getElementById('accordion__heading-0').scrollIntoView();");
+        WebElement element = wait.until(ExpectedConditions.presenceOfElementLocated(FAQ_SECTION));
+        ((JavascriptExecutor) driver).executeScript("arguments[0].scrollIntoView();", element);
     }
 
     public void clickQuestion(int index) {
         By question = By.id("accordion__heading-" + index);
-
-        ((JavascriptExecutor) driver)
-                .executeScript("document.getElementById('accordion__heading-" + index + "').scrollIntoView();");
-
-        driver.findElement(question).click();
-    }
-
-    public String getAnswer(int index) {
-        By answer = By.id("accordion__panel-" + index);
-        return driver.findElement(answer).getText();
-    }
-
-    public void clickOrderTop() {
-        driver.findElement(orderButtonTop).click();
-    }
-
-    public void clickOrderBottom() {
-        ((JavascriptExecutor) driver)
-                .executeScript("window.scrollTo(0, document.body.scrollHeight)");
-        driver.findElement(orderButtonBottom).click();
+        wait.until(ExpectedConditions.elementToBeClickable(question)).click();
     }
 }

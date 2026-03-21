@@ -9,7 +9,6 @@ import pageobjects.OrderPage;
 
 import java.util.stream.Stream;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class OrderScooterTest extends BaseTest {
@@ -20,12 +19,11 @@ public class OrderScooterTest extends BaseTest {
     @BeforeEach
     public void setUp() {
         startDriver();
-        driver.get("https://qa-scooter.praktikum-services.ru/order");
+        driver.get("https://qa-scooter.praktikum-services.ru/");
 
         mainPage = new MainPage(driver);
         orderPage = new OrderPage(driver);
 
-        // Принять куки
         mainPage.acceptCookies();
     }
 
@@ -35,7 +33,7 @@ public class OrderScooterTest extends BaseTest {
                             String address, String metro, String phone,
                             String date, String rent, String color, String comment) {
 
-        // Клик по кнопке заказа (верх/низ)
+        // Клик по кнопке заказа
         if (buttonPosition.equals("top")) {
             mainPage.clickOrderTop();
         } else {
@@ -49,18 +47,13 @@ public class OrderScooterTest extends BaseTest {
         // Клик "Заказать"
         orderPage.clickOrderButton();
 
-        // ===== Проверка текста модалки "Хотите оформить заказ?" =====
         String confirmText = orderPage.getConfirmModalText();
-        assertTrue(confirmText.contains("Хотите оформить заказ?"),
-                "Текст модального окна перед подтверждением заказа не соответствует ожидаемому");
+        assertTrue(confirmText.contains("Хотите оформить заказ?"));
 
-        // Подтверждение "Да"
         orderPage.clickConfirmYes();
 
-        // ===== Проверка финального успешного заказа =====
         String successText = orderPage.getOrderSuccessText();
-        assertTrue(successText.contains("Заказ оформлен"),
-                "Нет подтверждения успешного заказа");
+        assertTrue(successText.contains("Заказ оформлен"));
     }
 
     static Stream<Arguments> orderData() {

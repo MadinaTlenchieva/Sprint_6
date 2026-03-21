@@ -25,13 +25,14 @@ public class ImportantQuestionsTest extends BaseTest {
         driver.get("https://qa-scooter.praktikum-services.ru/");
         mainPage = new MainPage(driver);
         wait = new WebDriverWait(driver, Duration.ofSeconds(20));
+
+        mainPage.acceptCookies();
     }
 
     @ParameterizedTest
     @MethodSource("faqData")
     public void checkFAQ(int index, String expectedText) {
 
-        mainPage.acceptCookies();
         mainPage.scrollToFAQ();
         mainPage.clickQuestion(index);
 

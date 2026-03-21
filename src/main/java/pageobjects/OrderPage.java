@@ -16,25 +16,18 @@ public class OrderPage {
         this.wait = new WebDriverWait(driver, Duration.ofSeconds(20));
     }
 
-    // ===== ЛОКАТОРЫ =====
-
-    // Модальное окно
+    // Модалка подтверждения
     private final By MODAL = By.xpath("//div[contains(@class,'Order_Modal')]");
-
-    // Заголовок модалки
     private final By MODAL_HEADER = By.xpath("//div[contains(@class,'Order_ModalHeader')]");
 
-    // Кнопка "Да"
+    // Кнопки
     private final By YES_BUTTON = By.xpath("//button[normalize-space()='Да']");
-
-    // Кнопка "Нет"
-    private final By NO_BUTTON = By.xpath("//button[normalize-space()='Нет']");
-
-    // Модалка успешного заказа
-    private final By SUCCESS_MODAL = By.xpath("//div[contains(@class,'Order_Overlay')]");
+    private final By ORDER_BUTTON = By.xpath("(//button[contains(.,'Заказать')])[last()]");
 
 
-    // ===== Первая форма =====
+    private final By SUCCESS_TEXT = By.xpath("//div[contains(@class,'Order_ModalHeader')]");
+
+    // ===== ПЕРВАЯ ФОРМА =====
     public void fillFirstForm(String name, String surname, String address,
                               String metroStation, String phone) {
 
@@ -62,8 +55,7 @@ public class OrderPage {
                 By.xpath("//button[normalize-space()='Далее']"))).click();
     }
 
-
-    // ===== Вторая форма =====
+    // ===== ВТОРАЯ ФОРМА =====
     public void fillSecondForm(String date, String rentTime, String scooterColor,
                                String comment) {
 
@@ -90,49 +82,28 @@ public class OrderPage {
                 .sendKeys(comment);
     }
 
-
-    // ===== КНОПКА "ЗАКАЗАТЬ" =====
+    //КНОПКА "ЗАКАЗАТЬ"
     public void clickOrderButton() {
-        WebElement orderBtn = wait.until(ExpectedConditions.elementToBeClickable(
-                By.xpath("(//button[contains(.,'Заказать')])[last()]")));
-        orderBtn.click();
+        wait.until(ExpectedConditions.elementToBeClickable(ORDER_BUTTON)).click();
     }
 
-
-    // ===== ПОЛУЧИТЬ ТЕКСТ МОДАЛКИ =====
     public String getConfirmModalText() {
         wait.until(ExpectedConditions.visibilityOfElementLocated(MODAL));
 
-        String text = wait.until(ExpectedConditions.visibilityOfElementLocated(MODAL_HEADER))
-                .getText();
-
-        return text.replace("\n", "").trim();
+        return wait.until(ExpectedConditions.visibilityOfElementLocated(MODAL_HEADER))
+                .getText()
+                .replace("\n", "")
+                .trim();
     }
 
-
-    // ===== КЛИК "ДА" =====
     public void clickConfirmYes() {
-
-        driver.findElement(By.xpath("//button[normalize-space()='Да']")).click();
+        wait.until(ExpectedConditions.elementToBeClickable(YES_BUTTON)).click();
     }
 
-
-    // ===== КЛИК "НЕТ" =====
-//    public void clickConfirmNo() {
-//        wait.until(ExpectedConditions.visibilityOfElementLocated(MODAL));
-//
-//        WebElement noBtn = wait.until(ExpectedConditions.elementToBeClickable(NO_BUTTON));
-//
-//        try {
-//            noBtn.click();
-//        } catch (Exception e) {
-//            ((JavascriptExecutor) driver).executeScript("arguments[0].click();", noBtn);
-//        }
-//    }
-
-
-    // ===== ТЕКСТ УСПЕШНОГО ЗАКАЗА =====
+    //ТЕКСТ УСПЕШНОГО ЗАКАЗА
     public String getOrderSuccessText() {
-        return wait.until(ExpectedConditions.visibilityOfElementLocated(SUCCESS_MODAL)).getText();
+        WebElement element = wait.until(ExpectedConditions.visibilityOfElementLocated(SUCCESS_TEXT));
+        wait.until(ExpectedConditions.textToBePresentInElement(element, "Заказ оформлен"));
+        return element.getText();
     }
 }
